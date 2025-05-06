@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Custom styles */
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .card {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .card-header {
+      background-color: #007bff;
+      color: white;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .btn:hover {
+      opacity: 0.8;
+    }
+
+    .form-label {
+      font-weight: bold;
+    }
+
+    .form-control, .form-select {
+      border-radius: 5px;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .task-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task-btns button {
+      width: 100px;
+    }
+
+    .task-actions .btn {
+      padding: 8px 15px;
+    }
+
+    /* Responsive Design */
+    .container {
+      max-width: 900px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+    }
+
+    .alert {
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="text-center mb-5 text-primary">Todo List</h1>
+
+    <!-- Add Task Card -->
+    <div class="card">
+      <div class="card-header text-center">
+        <h4>Add New Task</h4>
+      </div>
+      <div class="card-body">
+        <!-- Form with Validation Feedback -->
+        <form (ngSubmit)="addtodo(id, title, status, $event)">
+          <div class="mb-3">
+            <label for="id" class="form-label">Task ID</label>
+            <input type="number" id="id" class="form-control" name="id" [(ngModel)]="id" required>
+            <div *ngIf="id && id <= 0" class="text-danger">Please provide a valid ID</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="title" class="form-label">Task Title</label>
+            <input type="text" id="title" class="form-control" name="newtitle" [(ngModel)]="title" required>
+            <div *ngIf="!title" class="text-danger">Title is required</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="status" class="form-label">Task Status</label>
+            <select id="status" class="form-select" name="status" [(ngModel)]="status" required>
+              <option value="completed">Completed</option>
+              <option value="incompleted">InCompleted</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Add Task</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Task List Card -->
+    <div class="card mt-4">
+      <div class="card-header text-center">
+        <h4>Todo List</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let todo of todoList">
+              <td>{{todo.id}}</td>
+              <td>{{todo.title}}</td>
+              <td>{{todo.status}}</td>
+              <td class="task-btns">
+                <button class="btn btn-danger" (click)="deletetask(todo.id)">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+                <button class="btn btn-warning" (click)="edittask(todo)">
+                  <i class="fas fa-pencil-alt"></i> Update
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Update Task Form Card -->
+    <div class="card mt-4" *ngIf="showupdatedform">
+      <div class="card-header text-center">
+        <h4>Update Task</h4>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="updateTask(id)">
+          <div class="mb-3">
+            <label for="updateId" class="form-label">Task ID</label>
+            <input type="number" id="updateId" class="form-control" [(ngModel)]="id" name="id" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="updateTitle" class="form-label">Task Title</label>
+            <input type="text" id="updateTitle" class="form-control" [(ngModel)]="title" name="title">
+          </div>
+
+          <div class="mb-3">
+            <label for="updateStatus" class="form-label">Task Status</label>
+            <select id="updateStatus" class="form-select" [(ngModel)]="status" name="status">
+              <option value="completed">Completed</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Update Task</button>
+            <button type="button" class="btn btn-secondary" (click)="showupdatedform = false">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Font Awesome JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+</body>
+</html>
